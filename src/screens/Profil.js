@@ -40,7 +40,7 @@ class Login extends React.Component {
         this.setState({ loading: true });
         api.post('login', { username: this.state.username, password: this.state.password })
             .then(result => {
-                // console.log('RESPONSE LOGIN: ', result)
+                console.log('RESPONSE LOGIN: ', result)
                 if (result.data == false)
                     alert('Nume sau parola gresite!');
                 else {

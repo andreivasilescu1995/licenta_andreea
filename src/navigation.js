@@ -58,8 +58,7 @@ function TabNav(props) {
             initialRouteName="Home"
             activeColor="#f0edf6"
             inactiveColor="#0800ff"
-            barStyle={{ backgroundColor: '#3688ff' }}
-        >
+            barStyle={{ backgroundColor: '#3688ff' }}>
             <Tab.Screen
                 options={{
                     tabBarIcon: ({ focused, color }) => {
