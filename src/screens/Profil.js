@@ -8,6 +8,7 @@ import Foundation from "react-native-vector-icons/Foundation";
 import UserLogged from '../img/userLogged.svg';
 
 import api from '../api';
+import ModalInfo from './ModalInfo';
 
 export default class Profil extends React.Component {
     constructor(props) {
@@ -33,16 +34,17 @@ class Login extends React.Component {
             password: '1234',
             loading: false,
         }
-        console.log('PROPS LOGIN: ', props)
+        this.refModal = React.createRef();
+        // console.log('PROPS LOGIN: ', props)
     }
 
     checkLogin = () => {
         this.setState({ loading: true });
         api.post('login', { username: this.state.username, password: this.state.password })
             .then(result => {
-                console.log('RESPONSE LOGIN: ', result)
+                // console.log('RESPONSE LOGIN: ', result)
                 if (result.data == false)
-                    alert('Nume sau parola gresite!');
+                    this.refModal.current.setText('Nume sau parola gresita!');
                 else {
                     emitter.emit('login', { username: this.state.username, user_id: result.data[1] });
                     if (this.props.route.params?.shouldRedirect) {
@@ -69,6 +71,8 @@ class Login extends React.Component {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 colors={['#3b5998', '#192f6a']}
                 style={{ flex: 1, padding: 10, alignItems: 'center', justifyContent: 'center' }}>
+
+                <ModalInfo ref={this.refModal} />
 
                 {this.state.loading ?
                     <ActivityIndicator style={{ color: '#00FF00	', alignSelf: 'center', width: 30 }} size={30} />

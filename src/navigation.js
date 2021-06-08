@@ -90,6 +90,17 @@ function TabNav(props) {
                 {() => <Profil {...props} />}
             </Tab.Screen>
             <Tab.Screen
+                listeners={{
+                    tabPress: e => {
+                        e.preventDefault();
+                        if (props.user) {
+                            props.navigation.navigate('Rezervari');
+                        }
+                        else {
+                            props.navigation.navigate('Profil');
+                        }
+                    },
+                }}
                 options={{
                     tabBarIcon: ({ focused, color }) => {
                         return (
