@@ -52,8 +52,10 @@ class Login extends React.Component {
                         if (this.props.route.params.shouldRedirect == 'Rezervari') {
                             emitter.emit('refreshReservations');
                         }
+                        else if (this.props.route.params.shouldRedirect == 'Cautare') {
+                            emitter.emit('sendReservation');
+                        }
                     }
-                    // emitter.emit('sendReservation');
                 }
             })
             .catch(error => {

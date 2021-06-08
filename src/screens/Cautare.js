@@ -10,6 +10,7 @@ import api from '../api';
 
 import BraintreeDropIn from 'react-native-braintree-dropin-ui';
 import ModalInfo from './ModalInfo';
+import ModalConfirmPayment from './ModalConfirmPayment';
 
 export default class Cautare extends React.Component {
     constructor(props) {
@@ -23,13 +24,15 @@ export default class Cautare extends React.Component {
             startTime: null,
             endTime: null,
             hours: '1',
+            nonce: null,
         }
-
-        // console.log('PROPS CAUTARE: ', props)
 
         this.token = null;
         this.reservationDetails = null;
         this.refModal = React.createRef();
+        this.refConfirmPayment = React.createRef();
+
+        // console.log('PROPS CAUTARE: ', props)
     }
 
     componentDidMount() {
@@ -66,7 +69,14 @@ export default class Cautare extends React.Component {
                     console.log('RESPONSE CHECKOUT: ', response);
                     if (response.data == true) {
                         this.refModal.current.setText('Ati rezervat masa ' + this.reservationDetails[0] + '!');
+                        resolve();
                     }
+                    else
+                        reject(response);
+                })
+                .catch(error => {
+                    alert('EROARE ' + error.message);
+                    reject(error);
                 })
         })
     }
@@ -74,13 +84,7 @@ export default class Cautare extends React.Component {
     showDropIn() {
         return new Promise((resolve, reject) => {
             BraintreeDropIn.show({
-                clientToken: this.token,
-                merchantIdentifier: 'g6gppw8kyscrz4yd',
-                googlePayMerchantId: 'googlePayMerchantId',
-                countryCode: 'US',    //apple pay setting
-                currencyCode: 'USD',   //apple pay setting
-                merchantName: 'Andreea Steflea',
-                orderTotal: parseInt(this.state.hours),
+                clientToken: this.token, merchantIdentifier: 'g6gppw8kyscrz4yd', googlePayMerchantId: 'googlePayMerchantId', countryCode: 'US', currencyCode: 'USD', merchantName: 'Andreea Steflea', orderTotal: parseInt(this.state.hours),
                 googlePay: false,
                 applePay: false,
                 vaultManager: true,
@@ -89,11 +93,13 @@ export default class Cautare extends React.Component {
             })
                 .then(result => {
                     console.log('RESULT DROPIN: ', result);
+                    // this.setState({ nonce: result.nonce }, () => this.refConfirmPayment.current.toggleModal())
                     this.pay(result).then(result => {
-                        console.log('RESULT PAY: ', result);
-                        this.pay(result);
                         resolve();
                     })
+                        .catch(error => {
+                            reject(error);
+                        })
                 })
                 .catch((error) => {
                     if (error.code === 'USER_CANCELLATION') {
@@ -106,6 +112,8 @@ export default class Cautare extends React.Component {
                         console.log('EROARE AFISARE DROPIN: ', error)
                         if (!this.token)
                             this.getToken();
+                        else 
+                            alert('EROARE ' + error.message)
                     }
                 })
         })
@@ -148,7 +156,7 @@ export default class Cautare extends React.Component {
             })
     }
 
-    onDayPress = day => {
+    onDayPress(day) {
         this.setState({ selectedDay: day.dateString, showTimePicker: true });
     };
 
@@ -205,6 +213,11 @@ export default class Cautare extends React.Component {
                 colors={['#3b5998', '#192f6a']}
                 style={{ flex: 1, padding: 10 }}>
                 <ModalInfo ref={this.refModal} />
+                <ModalConfirmPayment
+                    ref={this.refConfirmPayment}
+                    nonce={this.state.nonce}
+                    onConfirm={() => this.pay()}
+                />
                 <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 20, color: 'white', alignSelf: 'center' }}>Alegeti data si ora rezervarii</Text>
 
